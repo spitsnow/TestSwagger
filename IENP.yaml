@@ -1,0 +1,389 @@
+openapi: 3.0.0
+servers:
+  - description: 豐揚-智慧能源網 API
+    url: 'https://uat.foyatech.com/FoyaIENP/api'
+info:
+  description: 豐揚-智慧能源網 API
+  version: 0.0.1
+  title: Foya IENP API
+tags:
+  - name: DSRReceiver
+    description: DSR資料接收
+  - name: MD
+    description: Media Disk & Formating
+paths:
+  /DSRReceiver:
+    post:
+      tags:
+        - DSRReceiver
+      summary: DSR原始資料接收
+      description: 接收匯流排各位置實際產生之值
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSRReceiverRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSRReceiverResponse'
+        '401':
+          $ref: '#/components/responses/401'
+        '430':
+          $ref: '#/components/responses/430'
+        '431':
+          $ref: '#/components/responses/431'
+        '550':
+          $ref: '#/components/responses/550'
+  /MD:
+    post:
+      tags:
+        - MD
+      summary: 接收DSR原始資料
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MDReceiverRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MDReceiverResponse'
+        '401':
+          $ref: '#/components/responses/401'
+        '422':
+          $ref: '#/components/responses/422'
+        '430':
+          $ref: '#/components/responses/430'
+        '431':
+          $ref: '#/components/responses/431'
+        '550':
+          $ref: '#/components/responses/550'
+    get:
+      tags:
+        - MD
+      summary: 查詢DSR原始資料
+      description: ''
+      parameters:
+        - in: query
+          name: DeviceId
+          description: 裝置代碼
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: QuerySDate
+          description: 資料日期範圍(起)(yyyy-MM-dd)
+          schema:
+            type: string
+        - in: query
+          name: QueryEDate
+          description: 資料日期範圍(迄)(yyyy-MM-dd)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MDReceiverResponse'
+        '401':
+          $ref: '#/components/responses/401'
+        '431':
+          $ref: '#/components/responses/431'
+        '550':
+          $ref: '#/components/responses/550'
+components:
+  responses:
+    '204':
+      description: No Content
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '401':
+      description: 未登入或無權限
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '420':
+      description: '{0}資料已存在。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '421':
+      description: '{0}資料不可刪除。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '422':
+      description: '{0}資料不存在。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '430':
+      description: '{0}欄位為必填。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '431':
+      description: '{0}欄位格式錯誤。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '432':
+      description: '{0}欄位資料錯誤。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '433':
+      description: '{0}欄位資料已存在。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '434':
+      description: '{0}欄位資料不可異動或無異動權限。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '460':
+      description: 已有兌點資訊，不提供取消累點。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '461':
+      description: 兌點數不足。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '462':
+      description: 返還點數計算異常，無法取消兌點。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '470':
+      description: 帳戶資料維護中，請稍後再試。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+    '550':
+      description: 550 內部錯誤
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusCode'
+  schemas:
+    StatusCode:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: 錯誤代碼
+        message:
+          type: string
+          description: 錯誤訊息
+    DSRReceiverRequest:
+      type: object
+      required:
+        - PointType
+      properties:
+        Kind:
+          type: string
+          description: 型號
+        Verison:
+          type: string
+          description: 版本
+        ModBusID:
+          type: string
+          description: ModBus ID
+        ConnectorStatus:
+          type: string
+          description: | 
+            連接器狀態
+              0: GND
+              1: LOW
+              2: HIGH
+        ContactorStatus:
+          type: string
+          description: | 
+            接觸器狀態
+              0: 斷開
+              1: 投入
+        ChargerStatus:
+          type: string
+          description: | 
+            充電柱狀態 State 0-13
+        IDPTI:
+          type: string
+          description: 絕緣偵測正端阻抗
+        IDNTI:
+          type: string
+          description: 絕緣偵測負端阻抗
+        IDS:
+          type: string
+          description: |
+            絕緣偵測狀態
+              0: 錯誤
+              1: 警告
+              2: 正常
+        RCTime:
+          type: string
+          description: |
+            剩餘充電時間
+        CurrDCVol:
+          type: string
+          description: |
+            目前直流電壓
+        CurrDCEC:
+          type: string
+          description: |
+            目前直流電流            
+        ACVol:
+          type: string
+          description: 預留-交流電壓
+        ACEC:
+          type: string
+          description: 預留-交流電流
+        DCChargeVolume:
+          type: string
+          description: 預留-直流充電量
+        SOC:
+          type: string
+          description: 電池電量(SOC)
+        DCPower:
+          type: string
+          description: 預留-DC Power
+        MaintStatus:
+          type: string
+          description: |
+            設定維護狀態
+              0: 正常
+              1: 維護狀態
+        SupendChargerCmd:
+          type: string
+          description: |
+            停止充電命令
+              0: 無停止命令
+              1: 正常停止
+              2: 錯誤停止
+              3. 緊急停止
+        ChargeDeviceNo:
+          type: string
+          description: 充電機編號
+        ChargeDeviceLocation:
+          type: string
+          description: 充電機地點
+        RatedMaxVol:
+          type: string
+          description: 額定最高電壓之值
+        RatedMinVol:
+          type: string
+          description: 額定最低電壓之值
+        RatedMaxEC:
+          type: string
+          description: 額定最高電流之值
+        RatedMinEC:
+          type: string
+          description: 額定最低電流之值
+        PowerMModCnt:
+          type: string
+          description: 設定電源模組數量
+        RFIDRemoteVerify:
+          type: string
+          description: 遠端驗證RFID
+        RFIDAreaCde:
+          type: string
+          description: 額定最低電流之值
+        BackEndActForRFID:
+          type: string
+          description: RFID認證之後台動作        
+        BackEndChargeCtrl:
+          type: string
+          description: |
+            後台充電控制
+            0: 不使用後台
+            1: 使用後台
+        BackEndResult:
+          type: string
+          description: |
+            後台回覆判斷後之充電動作
+              0: 判斷中
+              1: 拒絕充電
+              2: 同意充電
+    DSRReceiverResponse:
+      type: object
+      required:
+        - PointType
+      properties:
+        DeviceId:
+          type: string
+          description: 裝置代碼
+        DataSeq:
+          type: string
+          description: 資料序號(不可重覆)
+        DsrRcvDataTime:
+          type: string
+          description: DSR資料收到日期
+          format: yyyy-MM-dd hh:mm:ss
+        DSRInfo:
+          $ref: '#/components/schemas/DSRReceiverRequest'              
+    MDReceiverRequest:
+      type: object
+      required:
+        - DeviceId
+      properties:
+        DeviceId:
+          type: string
+          description: 裝置代碼
+        DataSeq:
+          type: string
+          description: 資料流水號
+        DSRInfo:
+          $ref: '#/components/schemas/DSRReceiverRequest'
+    MDReceiverResponse:
+      type: object
+      required:
+        - DeviceId
+      properties:
+        DeviceId:
+          type: string
+          description: 裝置代碼
+        DataSeq:
+          type: string
+          description: 資料序號(不可重覆)
+        DsrRcvDataTime:
+          type: string
+          description: DSR資料收到日期
+          format: yyyy-MM-dd hh:mm:ss
+        MDRcvDataTime:
+          type: string
+          description: MD資料收到日期
+          format: yyyy-MM-dd hh:mm:ss          
+        DSRInfo:
+          $ref: '#/components/schemas/DSRReceiverRequest'            
